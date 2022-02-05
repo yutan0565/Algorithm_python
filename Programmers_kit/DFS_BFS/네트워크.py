@@ -20,30 +20,29 @@ print(solution(3, [[1, 1, 0], [1, 1, 0], [0, 0, 1]]))
 
 
 # BFS 방식
+from collections import deque
+
+
+def bfs(n, com, computers, visited):
+    visited[com] = True
+    q = deque()
+    q.append(com)
+
+    while (q):
+        current = q.popleft()
+        visited[current] = True
+        for connect in range(n):
+            if connect != current and computers[current][connect] == 1:
+                if visited[connect] != True:
+                    q.append(connect)
+
 
 def solution(n, computers):
-    answer = 0
-    visited = [False for i in range(n)]
-    for com in range(n):
-        if visited[com] == False:
-            # bfs로 보내서 인접한거 무두 채우도록 하기
-            bfs(n, computers, com, visited)
-            answer += 1
-    return answer
-
-
-def bfs(n, computers, com, visited):
-    visited[com] = True
-    queue = []
-    queue.append(com)
-    while len(queue) != 0:
-        com = queue.pop(0)  # 맨처음꺼 꺼내기
-        visited[com] = True  # 꺼낸거 방문 표기
-        for connect in range(n):
-            if connect != com and computers[com][connect] == 1:
-                if visited[connect] == False:  # 연결된 곳의 연결된 곳 중에 방분x 이쓰면
-                    queue.append(connect)  # queue에 넣어주기
-
-print(solution(3, [[1, 1, 0], [1, 1, 0], [0, 0, 1]]))
-
+    visited = [False] * n
+    count = 0
+    for i in range(n):
+        if visited[i] != True:
+            bfs(n, i, computers, visited)
+            count += 1
+    return count
 

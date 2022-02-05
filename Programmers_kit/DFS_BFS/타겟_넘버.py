@@ -1,76 +1,43 @@
-from collections import deque
+# DFS 방식,    최대한 방문한 것을 1개의 트리로 계산
+def dfs(n, computers, com, visited):
+    visited[com] = True
+    for connect in range(n):
+        if connect != com and computers[com][connect] == 1:
+            if visited[connect] == False:
+                dfs(n, computers, connect, visited)
 
 
-# BFS
-def solution(numbers, target):
+def solution(n, computers):
     answer = 0
-    queue = deque()
-    n = len(queue)
-    queue.append([numbers[0], 0])
-    queue.append([-numbers[0], 0])
-    while queue:
-        temp, idx = quequ.papleft()
-        idx += 1
-        if idx < n:
-            queue.append([temp + numbers[idx], idx])
-            queue.append([temp - numbers[idx], idx])
-        else:
-            if temp == target:
-                answer += 1
-    return answer
-
-
-def solution(numbers, target):
-    answer = 0
-    list = [0]
-
-    for num in numbers:
-        temp = []
-        for a in list:
-            temp.append(a + num)
-            temp.append(a - num)
-        list = temp
-    for num in list:
-        if num == target:
+    visited = [False for i in range(n)]
+    for com in range(n):
+        if visited[com] == False:
+            dfs(n, computers, com, visited)
             answer += 1
     return answer
 
 
-# DFS 풀이
+# BFS 방식
 
-def solution(numbers, target):
-    n = len(numbers)
+def solution(n, computers):
     answer = 0
-
-    def dfs(idx, result):
-        if idx == 0:
-            if result == target:
-                nonlocal answer
-                answer += 1
-            return
-        else:
-            dfs(idx + 1, result + numbers[idx])
-            dfs(idx + 1, result - numbers[idx])
-
-    dfs(0, 0)
+    visited = [False for i in range(n)]
+    for com in range(n):
+        if visited[com] == False:
+            # bfs로 보내서 인접한거 무두 채우도록 하기
+            bfs(n, computers, com, visited)
+            answer += 1
     return answer
 
 
-def solution(numbers, target):
-    answer = DFS(numbers, target, 0)
-    return answer
-
-
-def DFS(numbers, target, depth):
-    answer = 0
-    if depth == len(numbers):
-        print(numbers)
-        if sum(numbers) == target:
-            return 1
-        else:
-            return 0
-    else:
-        answer += DFS(numbers, target, depth + 1)
-        numbers[depth] *= -1
-        answer += DFS(numbers, target, depth + 1)
-        return answer
+def bfs(n, computers, com, visited):
+    visited[com] = True
+    queue = []
+    queue.append(com)
+    while len(queue) != 0:
+        com = queue.pop(0)  # 맨처음꺼 꺼내기
+        visited[com] = True  # 꺼낸거 방문 표기
+        for connect in range(n):
+            if connect != com and computers[com][connect] == 1:
+                if visited[connect] == False:  # 연결된 곳의 연결된 곳 중에 방분x 이쓰면
+                    queue.append(connect)  # queue에 넣어주기
