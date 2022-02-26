@@ -43,6 +43,7 @@ for i in range(h):
         if temp[j]== 'C':
             point.append([i,j])
 # print(point)
+
 result = bfs(point,w, h, graph, visited )
 print(result)
 

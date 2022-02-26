@@ -1,12 +1,6 @@
 import sys
 from collections import deque
 
-N , M = map(int, sys.stdin.readline().rstrip().split())
-graph = [ list(map(int, sys.stdin.readline().rstrip())) for _ in range(N) ]
-visited = [ [False]*M for _ in range(N) ]
-
-
-
 def bfs(x, y):
     global N, M, graph, visited
     q = deque()
@@ -28,10 +22,15 @@ def bfs(x, y):
                         q.append([nx, ny])
                         graph[nx][ny] = graph[a][b] + 1
                         visited[nx][ny] = True
+
     return graph[N-1][M-1]-1
 
 
 
+
+N , M = map(int, sys.stdin.readline().rstrip().split())
+graph = [ list(map(int, sys.stdin.readline().rstrip())) for _ in range(N) ]
+visited = [ [False]*M for _ in range(N) ]
 
 for i in range(N):
     for j in range(M):

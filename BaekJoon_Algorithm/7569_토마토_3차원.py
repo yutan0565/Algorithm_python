@@ -3,7 +3,6 @@ from collections import deque
 
 def bfs(M,N, H, graph, visited,toto):
 
-
     count = 0
     for i in range(H):
         for j in range(N):
@@ -23,8 +22,6 @@ def bfs(M,N, H, graph, visited,toto):
     dx = [1,0,0,-1,0,0 ]
     dy = [0,1,0,0,-1,0 ]
     dz = [0,0,1,0,0,-1]
-
-
 
     while q:
         a, b, c = q.popleft()
