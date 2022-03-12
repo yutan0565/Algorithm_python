@@ -32,8 +32,7 @@ for _ in range(t):
     daik(n, d, c, graph, visited)
 
 
-#
-# #
+
 # # def bfs(n, d, c, graph, visited):
 # #     heap = []
 # #     for g in graph:
