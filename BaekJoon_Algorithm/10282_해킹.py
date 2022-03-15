@@ -6,6 +6,7 @@ def daik(n, d, c, graph, visited):
     heap = []
     heapq.heappush(heap, [c,0])
     visited[c] = 0
+
     while heap:
         now, time = heapq.heappop(heap)
         for go, go_time in graph[now]:
