@@ -15,5 +15,3 @@ for i in range(N):   # 현재 날짜
                 dp[i] = max( dp[i] , c[i][1] + dp[j] )
 
 print(max(dp))
-
-

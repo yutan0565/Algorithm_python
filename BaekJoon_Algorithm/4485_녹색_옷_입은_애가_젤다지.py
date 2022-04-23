@@ -11,6 +11,7 @@ def bfs(n, graph, visited):
     dy = [0,0,1,-1]
     while heap:
         cost, a, b = heapq.heappop(heap)  # cost가 가장 적은거 빼내기
+
         if a == n-1 and b == n-1:
             for k in visited:
                 print(k)

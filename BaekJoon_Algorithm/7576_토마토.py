@@ -3,9 +3,7 @@ from collections import deque
 
 # 가로, 세로
 M , N = map(int, sys.stdin.readline().rstrip().split())
-
 graph = [ list(map(int, sys.stdin.readline().rstrip().split())) for _ in range(N) ]
-
 visited  = [ [False]*M for _ in range(N) ]
 
 

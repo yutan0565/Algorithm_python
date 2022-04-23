@@ -11,10 +11,13 @@ def bfs(point,w, h, graph, visited ):
     dy = [0, 0, 1, -1]
     while q:
         a,b = q.popleft()
+
+        # 종료 지점
         if a == point[1][0] and b == point[1][1]:
-            # for v in visited:
-            #     print(v)
+            for v in visited:
+                print(v)
             return visited[a][b] - 1
+
         for i in range(4):
             nx = a + dx[i]
             ny = b + dy[i]
@@ -23,6 +26,7 @@ def bfs(point,w, h, graph, visited ):
                     break
                 if graph[nx][ny] == "*":
                     break
+                ###### 무한대 설정
                 if visited[nx][ny] < visited[a][b]+1:
                     break
                 q.append([nx,ny])

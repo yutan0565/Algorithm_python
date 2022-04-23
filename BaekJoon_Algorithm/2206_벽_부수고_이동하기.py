@@ -3,6 +3,10 @@ from collections import deque
 
 def bfs(N, M, graph, visited):
     q = deque()
+
+    # flag
+    # 벽을 안부순 상태  = 1
+    # 벽을 부수면 = 0
     q.append([0,0,1])
     visited[0][0][1] = 1
 
@@ -11,6 +15,7 @@ def bfs(N, M, graph, visited):
 
     while q:
         a,b,flag = q.popleft()
+
         if a == N-1 and b == M-1:
             for i in visited:
                 print(i)
@@ -20,15 +25,17 @@ def bfs(N, M, graph, visited):
             nx = a + dx[i]
             ny = b + dy[i]
             if nx >=0 and ny >= 0 and nx < N and ny < M:
+
+                # 벽이다 & 아직 안부숨
                 if graph[nx][ny] == 1 and flag  == 1:
                     visited[nx][ny][0] = visited[a][b][flag] +1
                     q.append([nx,ny,0])
+
                 elif graph[nx][ny] == 0 and visited[nx][ny][flag] == 0:
                     visited[nx][ny][flag] = visited[a][b][flag] + 1
                     q.append([nx,ny,flag])
 
     return  -1
-
 
 
 

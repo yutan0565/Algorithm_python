@@ -1,5 +1,6 @@
 import sys
 from collections import deque
+from itertools import permutationS
 
 def bfs(x, y):
     global N, M, graph, visited
@@ -25,10 +26,9 @@ def bfs(x, y):
 
     return graph[N-1][M-1]-1
 
-
-
-
 N , M = map(int, sys.stdin.readline().rstrip().split())
+
+
 graph = [ list(map(int, sys.stdin.readline().rstrip())) for _ in range(N) ]
 visited = [ [False]*M for _ in range(N) ]
 
