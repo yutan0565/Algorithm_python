@@ -1,6 +1,6 @@
 import sys
 from collections import deque
-from itertools import permutationS
+
 
 def bfs(x, y):
     global N, M, graph, visited
