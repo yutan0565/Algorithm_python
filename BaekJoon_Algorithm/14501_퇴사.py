@@ -7,11 +7,12 @@ c = [ list(map(int, sys.stdin.readline().rstrip().split()))  for _ in range(N)]
 
 dp = [0]  * N
 
-for i in range(N):   # 현재 날짜
+for i in range(N): 
     if i + c[i][0]  <= N:
         dp[i] = c[i][1]
         for j in range(i):
             if j + c[j][0] -1 < i:
                 dp[i] = max( dp[i] , c[i][1] + dp[j] )
 
+print(dp)
 print(max(dp))
