@@ -55,7 +55,7 @@ def dfs(graph,visited, N, M, V, temp_d):
             if visited[i] == False:
                 if graph[i][1] not in temp_d:
                     visited[i] = True
-                    dfs(graph, visited, N, M, graph[i][1],temp_Pd )
+                    dfs(graph, visited, N, M, graph[i][1],temp_d )
 
         elif graph[i][1] == V:
             if visited[i] == False:
