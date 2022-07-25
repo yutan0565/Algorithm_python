@@ -48,10 +48,8 @@ end = list(map(int,sys.stdin.readline().rstrip().split()))
 
 graph = [ list(map(int,sys.stdin.readline().rstrip().split())) for _ in range(n)]
 
-visited_1 = [[ [-1,-1]] * m for _ in range(n)]
+
 visited = [[ [-1,-1]  for _ in range(m) ] for _ in range(n)]
 
-print(visited)
-print(visited_1)
 result = bfs()
 print(result)
