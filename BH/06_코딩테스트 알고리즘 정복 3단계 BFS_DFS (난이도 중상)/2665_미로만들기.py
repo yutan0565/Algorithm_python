@@ -31,11 +31,7 @@ wall_count = 0
 
 for i in range(n):
     graph.append(list(map(int, sys.stdin.readline().rstrip())))
-    for j in range(n):
-        if graph[i][j] == 0:
-            wall_count += 1
 
 visited = [ [0 for _ in range(n)]  for _ in range(n)]
-
 result = bfs()
 print(result)
