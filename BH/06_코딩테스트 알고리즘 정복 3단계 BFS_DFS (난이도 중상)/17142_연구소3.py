@@ -17,20 +17,20 @@ def bfs(graph, visited, act_virus, not_virus):
             if [a, b] in not_virus:
                 continue
             else:
-
                 for i in range(4):
                     nx = a + dx[i]
                     ny = b + dy[i]
                     if 0<=nx<n and 0<=ny<n:
                         if visited[nx][ny] == -1:
-                            if graph[nx][ny] == 0:
+                            if graph[nx][ny] != 1:
                                 q.append([nx,ny])
                                 visited[nx][ny] = visited[a][b] + 1
-                                max_time = max(max_time, visited[nx][ny])
+                                if [nx, ny] not in not_virus:
+                                    max_time = max(max_time, visited[nx][ny])
     for i in range(n):
         for j in range(n):
             if visited[i][j] == -1 and graph[i][j] == 0:
-                return -1
+                return 100000000
 
     return max_time
 
@@ -52,7 +52,7 @@ for act_virus in act_virus_group:
     temp = bfs(graph, visited, act_virus, not_virus)
     result_list.append(temp)
 
-if -1 in result_list:
+if min(result_list) == 100000000:
     print(-1)
 else:
     print(min(result_list))
