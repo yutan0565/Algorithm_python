@@ -14,24 +14,22 @@ def bfs(graph, visited, act_virus, not_virus):
     while q:
         for _ in range(len(q)):
             a,b = q.popleft()
-            if [a, b] in not_virus:
-                continue
-            else:
-                for i in range(4):
-                    nx = a + dx[i]
-                    ny = b + dy[i]
-                    if 0<=nx<n and 0<=ny<n:
-                        if visited[nx][ny] == -1:
-                            if graph[nx][ny] != 1:
-                                q.append([nx,ny])
-                                visited[nx][ny] = visited[a][b] + 1
-                                if [nx, ny] not in not_virus:
-                                    max_time = max(max_time, visited[nx][ny])
+            for i in range(4):
+                nx = a + dx[i]
+                ny = b + dy[i]
+                if 0<=nx<n and 0<=ny<n:
+                    if visited[nx][ny] == -1:
+                        if graph[nx][ny] == 0 or ( graph[nx][ny] == 2 and [nx,ny] in not_virus ):
+                            q.append([nx,ny])
+                            visited[nx][ny] = visited[a][b] + 1
+                            if [nx,ny] not in not_virus:
+                                max_time = max(max_time, visited[nx][ny])
+
+
     for i in range(n):
         for j in range(n):
             if visited[i][j] == -1 and graph[i][j] == 0:
                 return 100000000
-
     return max_time
 
 n,m = map(int, sys.stdin.readline().rstrip().split())
