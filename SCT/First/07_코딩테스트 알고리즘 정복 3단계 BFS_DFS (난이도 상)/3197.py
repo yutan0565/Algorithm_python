@@ -65,7 +65,7 @@ for i in range(r):
             q_melt.append([i, j])
             visited_melt[i][j] = 1
 start = baekjo[0]
-end = baekjo[1] 
+end = baekjo[1]
 
 q_baek.append(start)
 visited_baek[start[0]][start[1]] = 1
