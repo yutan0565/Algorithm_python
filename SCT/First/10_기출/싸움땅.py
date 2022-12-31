@@ -32,6 +32,7 @@ def drop_gun(peo):
     gun_list = graph[x][y]
     gun_list.append(now_gun)
     graph[x][y] = gun_list
+    dict_stat[peo] = dict_first_stat[peo]
 
 def get_gun(peo):
     x = dict_pos[peo][0]
@@ -98,8 +99,7 @@ def find_result():
                 # 싸움
                 winner, losser = compare(peo, visited[dict_pos[peo][0]][dict_pos[peo][1]])
                 # 점수 올리기
-                score_list[winner-1] = dict_stat[winner] - dict_stat[losser]
-
+                score_list[winner-1] += (dict_stat[winner] - dict_stat[losser])
                 # 진사람
                 drop_gun(losser)
                 move_losser(losser)
