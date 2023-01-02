@@ -2,115 +2,63 @@ import copy
 from collections import deque
 import sys
 
-def bfs():
+def bfs(x,y):
     q = deque()
-    open_door = []
-    q.append([[f_x,f_y],[s_x,s_y],open_door])
-
-    first = 0
-    second = 1
-    # x, y, 연 문 개수, 사람 번호
-    visited[f_x][f_y][0][first] = 1
-    visited[s_x][s_y][0][second] = 1
-
-    dx = [0,0,0,1,-1]
-    dy = [0,1,-1,0,0]
-
-
+    q.append([x,y])
+    visited = copy.deepcopy(reset_visited)
+    visited[x][y] = 0
+    dx = [0,0,1,-1]
+    dy = [1,-1,0,0]
 
     while q:
-        a,b,open_d = q.popleft()
-        d_count = len(open_d)
-        f_a,f_b = map(int, a)
-        s_a, s_b = map(int, b)
-        if [f_a, f_b] == [s_a, s_b]:
-            continue
-        temp_graph = copy.deepcopy(graph)
-        two_graph = copy.deepcopy(temp_graph)
+        a,b = q.popleft()
+        for i in range(4):
+            nx = a + dx[i]
+            ny = b + dy[i]
+            if 0<=nx<h+2 and 0<=ny<w+2:
+                if visited[nx][ny] == -1:
+                    if graph[nx][ny] == '.':
+                        q.appendleft([nx,ny])
+                        visited[nx][ny] = visited[a][b]
+                    elif graph[nx][ny] == '#':
+                        q.append([nx,ny])
+                        visited[nx][ny] = visited[a][b] + 1
 
-        print(open_d)
-        for i in range(h):
-            for j in range(w):
-                if two_graph[i][j] == '#' and [i,j] in open_d:
-                    two_graph[i][j] = '.'
-                if [i,j] == [f_a, f_b] or [i,j] == [s_a, s_b]:
-                    two_graph[i][j] = '$'
-        for g in two_graph:
-            print(g)
-
-
-        print()
-
-        for i in range(h):
-            for j in range(w):
-                if temp_graph[i][j] == '#' and [i,j] in open_d:
-                    temp_graph[i][j] = '.'
-
-        if (f_a == 0 or f_a == h-1 or f_b == 0 or f_b == w-1) and (s_a == 0 or s_a == h-1 or s_b == 0 or s_b == w-1):
-            return d_count
-
-        next_list = []
-        for i in range(5):
-            f_nx = f_a + dx[i]
-            f_ny = f_b + dy[i]
-            for i in range(5):
-                s_nx = s_a + dx[i]
-                s_ny = s_b + dy[i]
-                next_list.append([[f_nx,f_ny],[s_nx,s_ny]])
-
-
-        for n_a,n_b in next_list:
-            f_nx = n_a[0]
-            f_ny = n_a[1]
-            s_nx = n_b[0]
-            s_ny = n_b[1]
-            if 0<=f_nx<h and 0<=f_ny<w and 0<=s_nx<h and 0<=s_ny<w:
-                if visited[f_nx][f_ny][d_count][first] == -1 and visited[s_nx][s_ny][d_count][second] == -1:
-                    if temp_graph[f_nx][f_ny] == '*' or temp_graph[s_nx][s_ny] == '*':
-                        continue
-                    temp_d = copy.deepcopy(open_d)
-                    if temp_graph[f_nx][f_ny] == '.':
-                        visited[f_nx][f_ny][d_count][first] = 1
-                    elif temp_graph[f_nx][f_ny] == '#':
-                        if [f_nx,f_ny] not in open_d:
-                            temp_d.append([f_nx,f_ny])
-                            visited[f_nx][f_ny][d_count+ 1][first] = 1
-
-                    if temp_graph[s_nx][s_ny] == '.':
-                        visited[s_nx][s_ny][d_count][second] = 1
-                    elif temp_graph[s_nx][s_ny] == '#':
-                        if [s_nx,s_ny] not in open_d:
-                            temp_d.append([s_nx,s_ny])
-                            visited[s_nx][s_ny][d_count+ 1][second] = 1
-                    q.append([[f_nx,f_ny],[s_nx,s_ny], temp_d])
-                    if len(open_d) - len(temp_d) == 2:
-                        visited[f_nx][f_ny][d_count + 2][first] = 1
-                        visited[s_nx][s_ny][d_count + 2][second] = 1
-
-
+    return visited
 
 
 t = int(sys.stdin.readline().rstrip())
 for _ in range(t):
     h,w = map(int, sys.stdin.readline().rstrip().split())
-    graph = []
+    graph = [['.' for _ in range(w+2)]]
     p_list = []
     door_count = 0
-    for i in range(h):
-        graph.append(list(sys.stdin.readline().rstrip()))
-        for j in range(w):
+    for i in range(1, h + 1):
+        graph.append(['.'] + list(sys.stdin.readline().rstrip()) + ['.'] )
+        for j in range(1, w + 1):
             if graph[i][j] == '$':
                 p_list.append([i,j])
                 graph[i][j] = '.'
-
-            if graph[i][j] == '#':
-                door_count += 1
+    graph.append(['.' for _ in range(w+2)])
     f_x = p_list[0][0]
     f_y = p_list[0][1]
     s_x = p_list[1][0]
     s_y = p_list[1][1]
 
-    visited = [[[[-1,-1] for _ in range(door_count+1)] for _ in range(w)] for _ in range(h)]
+    reset_visited = [[-1 for _ in range(w+2)] for _ in range(h+2)]
 
-    result = bfs()
+    first_visited = bfs(f_x, f_y)
+    second_visited = bfs(s_x, s_y)
+    other_visited = bfs(0, 0)
+
+    total_door = [[0 for _ in range(w+2)] for _ in range(h+2)]
+
+    result = float('inf')
+    for i in range(1, h + 1):
+        for j in range(1, w + 1):
+            if first_visited[i][j] != -1 and second_visited[i][j] != -1 and other_visited[i][j] != -1:
+                temp = first_visited[i][j] + second_visited[i][j] + other_visited[i][j]
+                if graph[i][j] == '#':
+                    temp -= 2
+                result = min(result, temp)
     print(result)
