@@ -72,6 +72,7 @@ for time in range(t):
     graph = spread_dust(graph)
     up_blow_wind(machine_point[0])
     down_blow_wind(machine_point[1])
+
 result = 0
 for i in range(n):
     for j in range(m):
