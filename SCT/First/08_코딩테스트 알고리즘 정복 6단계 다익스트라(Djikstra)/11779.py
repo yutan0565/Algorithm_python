@@ -3,25 +3,30 @@ import sys
 import heapq
 
 def daik():
-
-    reset_visited = [float("inf") for _ in range(n+1)]
-    reset_visited[start] = 0
-
     q = []
-    heapq.heappush(q, [0, start, reset_visited])
-
+    heapq.heappush(q, [0, start])
     while q:
-        cost, a, visited = heapq.heappop(q)
-        if a == end:
-            return visited
+        cost, a  = heapq.heappop(q)
+        if cost > visited[a]:
+            continue
         for c, nx in graph[a]:
             nc = cost + c
-            if visited[nx] > nc:
-                new_visited = copy.deepcopy(visited)
-                new_visited[nx] = nc
-                heapq.heappush(q, [nc, nx, new_visited ])
+            if visited[nx] >  nc:
+                visited[nx] = nc
+                before_node[nx] = a
+                heapq.heappush(q, [nc, nx])
 
-
+def find_result():
+    result = []
+    check_node = end
+    while 1:
+        if check_node == start:
+            break
+        result.append(check_node)
+        check_node = before_node[check_node]
+    result.append(start)
+    result.reverse()
+    return result
 
 n = int(sys.stdin.readline().rstrip())
 m = int(sys.stdin.readline().rstrip())
@@ -33,19 +38,19 @@ for _ in range(m):
 
 start,end = map(int,sys.stdin.readline().rstrip().split())
 
+visited = [float("inf") for _ in range(n + 1)]
+visited[start] = 0
+before_node = [-1 for _ in range(n + 1)]
+before_node[start] = start
 
-result_visit = daik()
-
-
-visit_city = [i for i in range(len(result_visit)) if result_visit[i] != float("inf")]
-
-min_cost = result_visit[end]
-city_count = len(visit_city)
+daik()
+min_cost = visited[end]
+result = find_result()
 
 print(min_cost)
-print(city_count)
-for c in visit_city:
-    print(c, end=" ")
+print(len(result))
+for r in result:
+    print(r, end = " ")
 
 
 
