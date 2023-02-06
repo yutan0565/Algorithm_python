@@ -12,7 +12,6 @@ def bfs(x):
                 q.append(nx)
                 visited[nx] = 1
 
-
 n, m = map(int ,sys.stdin.readline().rstrip().split())
 graph = [[] for _ in range(n+1)]
 visited = [-1 for _ in range(n+1)]
