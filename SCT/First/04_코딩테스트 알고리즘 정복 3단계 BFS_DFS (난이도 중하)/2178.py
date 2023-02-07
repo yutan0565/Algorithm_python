@@ -1,7 +1,8 @@
 from collections import deque
 import sys
 
-def bfs(x,y):
+def bfs(start):
+    x,y = map(int, start)
     q = deque()
     q.append([x,y])
     visited[x][y] = 1
@@ -11,9 +12,8 @@ def bfs(x,y):
 
     while q:
         a,b = q.popleft()
-        if a == n-1 and b == m-1:
+        if [a,b] == end:
             return visited[a][b]
-
         for i in range(4):
             nx = a + dx[i]
             ny = b + dy[i]
@@ -23,12 +23,12 @@ def bfs(x,y):
                         q.append([nx,ny])
                         visited[nx][ny] = visited[a][b] + 1
 
-
-
-
 n,m = map(int, sys.stdin.readline().rstrip().split())
-graph = [ list(map(int, list(sys.stdin.readline().rstrip())))    for _ in range(n)]
-visited = [[-1]*m for _ in range(n)]
+graph = [ list(map(int, list(sys.stdin.readline().rstrip()))) for _ in range(n)]
+visited = [[-1 for _ in range(m)] for _ in range(n)]
 
-result = bfs(0,0)
+start = [0,0]
+end = [n-1, m-1]
+
+result = bfs(start)
 print(result)
