@@ -1,3 +1,4 @@
+import copy
 from collections import deque
 import sys
 
@@ -27,8 +28,14 @@ for _ in range(t):
     a_s, b_s = map(int, sys.stdin.readline().rstrip().split())
     a_e, b_e = map(int, sys.stdin.readline().rstrip().split())
 
-    graph = [[1 for _ in range(l)] for _ in range(l)]
+    # graph = [[0 for _ in range(l)] for _ in range(l)]
     visited = [[-1 for _ in range(l)] for _ in range(l)]
 
     result = bfs(a_s,b_s, a_e, b_e)
     print(result)
+
+
+
+
+
+
