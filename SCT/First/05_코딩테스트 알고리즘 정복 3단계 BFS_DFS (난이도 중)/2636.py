@@ -33,16 +33,10 @@ def bfs():
                         graph[nx][ny] = 0
     return check_cheese()
 
-
-
 n,m = map(int, sys.stdin.readline().rstrip().split())
-
 graph = []
 for i in range(n):
     graph.append(list(map(int, sys.stdin.readline().rstrip().split())))
-    for j in range(m):
-        pass
-
 
 result_time = 0
 result_list = [check_cheese()]
