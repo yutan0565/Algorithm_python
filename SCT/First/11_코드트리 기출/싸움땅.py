@@ -3,8 +3,6 @@ import sys
 
 dx = [-1,0,1,0]
 dy = [0,1,0,-1]
-
-
 def move(peo):
     x = dict_pos[peo][0]
     y = dict_pos[peo][1]
@@ -132,7 +130,6 @@ for i in range(1,m+1):
     dict_first_stat[i] = d
     dict_stat[i] = d
     dict_now_gun[i] = 0
-
 
 find_result()
 for s in score_list:
