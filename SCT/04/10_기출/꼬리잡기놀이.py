@@ -1,216 +1,240 @@
 import sys
-from collections import deque, defaultdict
+from collections import deque
+from collections import defaultdict
 
-def bfs(x,y,graph_group,visited,g_num):
+def show_info():
+    print("------show_info-------")
+    for num in range(number_of_group):
+        print(num)
+        print("dict_head : ", dict_head[num])
+        print("dict_body : ", dict_body[num])
+        print("dict_tail : ", dict_tail[num])
+
+def bfs_group(x,y):
     q = deque()
     q.append([x,y])
-    visited[x][y] = 1
-    graph_group[x][y] = g_num
+    graph_group[x][y]= number_of_group
+
     while q:
         a,b = q.popleft()
+        # 머리 사람인 경우
         if graph[a][b] == 1:
-            dict_head[g_num] = [a,b]
+            dict_head[number_of_group] = [a,b]
+        # 꼬리 사람인 경우
         elif graph[a][b] == 3:
-            dict_tail[g_num] = [a,b]
+            dict_tail[number_of_group] = [a, b]
+
         for d in range(4):
             nx = a + dx[d]
             ny = b + dy[d]
             if 0<=nx<n and 0<=ny<n:
-                if visited[nx][ny] == -1:
-                    if graph[nx][ny] != 0:
+                if graph[nx][ny] != 0:
+                    if graph_group[nx][ny] == -1:
                         q.append([nx,ny])
-                        visited[nx][ny] = 1
-                        graph_group[nx][ny] = g_num
+                        graph_group[nx][ny]= number_of_group
 
-def make_group_graph():
-    graph_group = [[0 for _ in range(n)] for _ in range(n)]
-    visited = [[-1 for _ in range(n)] for _ in range(n)]
-    g_num = 1
+def make_graph_group():
+    global  number_of_group
     for i in range(n):
         for j in range(n):
             if graph[i][j] != 0:
-                if visited[i][j] == -1:
-                    bfs(i,j,graph_group,visited, g_num)
-                    g_num += 1
-    return graph_group
+                if graph_group[i][j] == -1:
+                    bfs_group(i,j)
+                    number_of_group += 1
 
-def find_other_member():
-    for g_num in range(1,m+1):
-        x,y = dict_head[g_num]
-        move_list = [[x,y]]
-        stop_flag = 0
-        while 1:
-            check_tail = 1
-            for d in range(4):
-                nx = x + dx[d]
-                ny = y + dy[d]
-                if 0 <= nx < n and 0 <= ny < n:
-                    if graph_group[nx][ny] == g_num:
-                        if [nx,ny] not in move_list:
-                            if graph[nx][ny] == 2:
-                                dict_other[g_num].append([nx,ny])
-                                move_list.append([nx,ny])
-                                x,y = nx,ny
-                                check_tail = 0
-                                break
-            if check_tail == 1:
-                for d in range(4):
-                    nx = x + dx[d]
-                    ny = y + dy[d]
-                    if 0 <= nx < n and 0 <= ny < n:
-                        if graph_group[nx][ny] == g_num:
-                            if [nx, ny] not in move_list:
-                                if graph[nx][ny] == 3:
-                                    stop_flag = 1
-                                    break
-            if stop_flag == 1:
-                break
+def make_indi_body(now_num):
+    x = dict_head[now_num][0]
+    y = dict_head[now_num][1]
+    while 1:
+        # 꼬리가 아닌 부분 먼저 찾기
+        find_other = False
+        for d in range(4):
+            nx = x + dx[d]
+            ny = y + dy[d]
+            if 0<=nx<n and 0<=ny<n:
+                if graph_group[nx][ny] == now_num:
+                    if graph[nx][ny] == 2:
+                        if [nx,ny] not in dict_body[now_num]:
+                            dict_body[now_num].append([nx,ny])
+                            find_other = True
+                            x = nx
+                            y = ny
+                            break
+        # 다른 거 못찾은 경우
+        if find_other == False:
+            return
 
-def make_list_ball_start():
-    list_ball_start = []
-    for row in range(n):
-        list_ball_start.append([row,0,0])
-    for col in range(n):
-        list_ball_start.append([n-1,col,1])
-    for row in range(n-1,-1,-1):
-        list_ball_start.append([row,n-1,2])
-    for col in range(n-1,-1,-1):
-        list_ball_start.append([0,col,3])
+def make_dict_body():
+    for now_num in range(number_of_group):
+        make_indi_body(now_num)
+    return
+
+def make_ball_pos():
+    ball_pos_list = []
+
+    for i in range(n):
+        ball_pos_list.append([i,0, 0])
+    for i in range(n):
+        ball_pos_list.append([n-1,i,1])
+    for i in range(n):
+        ball_pos_list.append([n-1-i,n-1,2])
+    for i in range(n):
+        ball_pos_list.append([0,n-1-i,3])
 
     while 1:
-        if len(list_ball_start) >= k:
-            return list_ball_start[:k]
-        else:
-            list_ball_start = list_ball_start + list_ball_start
+        if len(ball_pos_list) >= k:
+            return ball_pos_list[:k]
+        ball_pos_list = ball_pos_list + ball_pos_list
+
 
 def move_people():
-    for g_num in range(1,m+1):
-        # other가 없는 경우
-        if dict_other[g_num] == []:
-            # 머리 이동
-            x, y = dict_head[g_num]
-            for d in range(4):
-                nx = x + dx[d]
-                ny = y + dy[d]
-                if 0<=nx<n and 0<=ny<n:
-                    if graph[nx][ny] == 4:
-                        if graph_group[nx][ny] == g_num:
-                            dict_head[g_num] = [nx,ny]
-                            graph[nx][ny] = 1
+    global dict_head, dict_body, dict_tail
+    for group_num in range(number_of_group):
+        now_head_x = dict_head[group_num][0]
+        now_head_y = dict_head[group_num][1]
+
+        now_tail_x = dict_tail[group_num][0]
+        now_tail_y = dict_tail[group_num][1]
+
+        # 머리 이동
+        # 그룹 내에서 other가 아니고, 꼬리가 아닌 부분으로 이동
+        head_move_flag = False
+        for d in range(4):
+            new_head_x = now_head_x + dx[d]
+            new_head_y = now_head_y + dy[d]
+            if 0<=new_head_x<n and 0<=new_head_y<n:
+                if graph_group[new_head_x][new_head_y] == group_num:
+                    if [new_head_x,new_head_y] not in dict_body[group_num]:
+                        if [new_head_x,new_head_y] != [now_tail_x, now_tail_y]:
+                            head_move_flag = True
+                            dict_head[group_num] = [new_head_x, new_head_y]
                             break
-            # 꼬리 이동
-            nx,ny = x,y
-            x,y = dict_tail[g_num]
-            dict_tail[g_num] = [nx,ny]
-            graph[nx][ny] = 3
-            graph[x][y] = 4
-        # other가 있는 경우
+
+        # 이동을 못하는 경우 (꽉차 있는 경우) -> 꼬리 위치로 이동
+        if head_move_flag == False:
+            for d in range(4):
+                new_head_x = now_head_x + dx[d]
+                new_head_y = now_head_y + dy[d]
+                if 0 <= new_head_x < n and 0 <= new_head_y < n:
+                    if graph_group[new_head_x][new_head_y] == group_num:
+                        if [new_head_x, new_head_y] == [now_tail_x, now_tail_y]:
+                            dict_head[group_num] = [new_head_x, new_head_y]
+                            break
+
+        # 몸통 부분 옮겨 주기
+        # 몸통이 없는 경우
+        if len(dict_body[group_num]) == 0:
+            # 꼬리만 원래 머리가 있던 자리롤 옯겨 주기
+            dict_tail[group_num] = [now_head_x,now_head_y]
+        # 몸통이 있는 경우
         else:
-            # 머리 이동
-            x, y = dict_head[g_num]
-            for d in range(4):
-                nx = x + dx[d]
-                ny = y + dy[d]
-                if 0<=nx<n and 0<=ny<n:
-                    if graph[nx][ny] == 4 or graph[nx][ny] == 3:
-                        if graph_group[nx][ny] == g_num:
-                            dict_head[g_num] = [nx,ny]
-                            graph[nx][ny] = 1
-                            break
-            # 중간 이동
-            nx,ny = x,y
-            for i in range(len(dict_other[g_num])):
-                x,y = dict_other[g_num][i]
-                dict_other[g_num][i] = [nx,ny]
-                graph[nx][ny] = 2
-                nx,ny = x,y
-            # 꼬리 이동
-            x,y = dict_tail[g_num]
-            dict_tail[g_num] = [nx,ny]
-            graph[nx][ny] = 3
-            if [x,y] != dict_head[g_num]:
-                graph[x][y] = 4
+            x = now_head_x
+            y = now_head_y
 
-def switch(g_num):
+            for i in range(len(dict_body[group_num])):
+                # 원래 있던 장소
+                ori_x = dict_body[group_num][i][0]
+                ori_y = dict_body[group_num][i][1]
+                dict_body[group_num][i] = [x,y]
+                x = ori_x
+                y = ori_y
+
+            # 마지막 꼬리 부분만 바꿔주기
+            dict_tail[group_num] = [x,y]
+
+# 방향 전환
+def switch_pos(g_num):
+    global dict_head, dict_body, dict_tail
+    # 머리랑 꼬리 바꾸기
     dict_head[g_num], dict_tail[g_num] = dict_tail[g_num], dict_head[g_num]
-    head_x,head_y = dict_head[g_num]
-    tail_x,tail_y = dict_tail[g_num]
-    graph[head_x][head_y], graph[tail_x][tail_y] = graph[tail_x][tail_y], graph[head_x][head_y]
 
-    if len(dict_other[g_num]) != 0:
-        new_other = []
-        for x,y in dict_other[g_num]:
-            new_other = [[x,y]] + new_other
-        dict_other[g_num] = new_other
+    # 가운데 바꾸기
+    new_body = []
+    for i in range(len(dict_body[g_num])-1,-1,-1):
+        new_body.append(dict_body[g_num][i])
+    dict_body[g_num] = new_body
 
-def drow_ball(x,y,direct):
+def drow_ball(ball_x, ball_y,ball_direct):
     global total_score
-    while 1:
-        g_num = graph_group[x][y]
-        if g_num != 0:
-            # 머리에 맞음
-            if [x,y] == dict_head[g_num]:
-                index = 1
-                total_score += index*index
-                switch(g_num)
-                return
-            #꼬리에 맞음
-            elif [x,y] == dict_tail[g_num]:
-                index = 1 + len(dict_other[g_num])+1
-                total_score += index*index
-                switch(g_num)
-                return
-            # 중간 맞음
-            elif [x,y] in dict_other[g_num]:
-                index = 2
-                for other_x, other_y in dict_other[g_num]:
-                    if [x,y] == [other_x,other_y]:
-                        break
-                    index += 1
-                total_score += index*index
-                switch(g_num)
-                return
-        # 아무것도 안맞음
-        x = x + dx[direct]
-        y = y + dy[direct]
+    for i in range(n):
+        # 공 위치 옮겨 주기
+        x  = ball_x + dx[ball_direct]*i
+        y  = ball_y + dy[ball_direct]*i
         if not(0<=x<n and 0<=y<n):
             break
+        else:
+            #머리에 맞는 경우
+            for g_num in range(number_of_group):
+                if [x,y] == dict_head[g_num]:
+                    add_score = 1
+                    total_score += (add_score*add_score)
+                    switch_pos(g_num)
+                    return
+            # 꼬리에 맞는 경우
+            for g_num in range(number_of_group):
+                if [x, y] == dict_tail[g_num]:
+                    add_score = (1+len(dict_body[g_num])+1)
+                    total_score += (add_score * add_score)
+                    switch_pos(g_num)
+                    return
+            # 중간에 맞는 경우
+            for g_num in range(number_of_group):
+                for i in range(len(dict_body[g_num])):
+                    if [x, y] == dict_body[g_num][i]:
+                        add_score = (2+i)
+                        total_score += (add_score * add_score)
+                        switch_pos(g_num)
+                        return
+
+def simulation():
+
+    for i in range(k):
+        # 사람 먼저 이동
+        move_people()
+        # 공 던지기
+        ball_x,ball_y,ball_direct = ball_pos_list[i]
+        drow_ball(ball_x, ball_y,ball_direct)
+
+
+n,m,k = map(int,sys.stdin.readline().rstrip().split())
+graph = [list(map(int,sys.stdin.readline().rstrip().split())) for _ in range(n)]
+graph_group = [[-1 for _ in range(n)] for _ in range(n)]
+number_of_group = 0
+ball_pos_list = []
 
 dx = [0,-1,0,1]
 dy = [1,0,-1,0]
 
-n,m,k = map(int,sys.stdin.readline().rstrip().split())
-graph = [list(map(int,sys.stdin.readline().rstrip().split())) for _ in range(n)]
-
-dict_head = defaultdict(lambda : [])
-dict_tail = defaultdict(lambda : [])
-dict_other = defaultdict(lambda : [])
-
-graph_group = make_group_graph()
-find_other_member()
-list_ball_start = make_list_ball_start()
+dict_head = {}
+dict_body = defaultdict(lambda : [])
+dict_tail = {}
 
 total_score = 0
-for round in range(1,k+1):
-    ball_x, ball_y, direct = list_ball_start[round-1]
-    # 한칸 이동하기
-    move_people()
-    # 공 던지기
-    drow_ball(ball_x,ball_y,direct)
+
+make_graph_group()
+make_dict_body()
+ball_pos_list = make_ball_pos()
+
+simulation()
 
 print(total_score)
 
-
-
 """
-7 2 1
-4 3 1 0 0 0 0
+7 2 2
+2 2 1 0 0 0 0
+2 0 3 0 3 1 4
+2 2 2 0 4 0 4
+0 0 0 0 4 0 4
+0 0 4 4 4 0 4
+0 0 4 0 0 0 4
+0 0 4 4 4 4 4
+
+7 2 100
+3 2 1 0 0 0 0
 4 0 4 0 2 1 4
 4 4 4 0 2 0 4
 0 0 0 0 3 0 4
 0 0 4 4 4 0 4
 0 0 4 0 0 0 4
 0 0 4 4 4 4 4
-
 """
-
