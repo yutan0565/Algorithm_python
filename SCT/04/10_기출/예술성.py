@@ -1,119 +1,125 @@
+import copy
 import sys
 from collections import deque
 
-def find_group_bfs(x,y,num):
+
+
+def bfs(x,y,group_num):
+    global graph_group
     q = deque()
     q.append([x,y])
-    visited[x][y] = 1
-    graph_group[x][y] = num
-    dict_group_count[num] = 1
-    color = graph_color[x][y]
-    dict_group_color[num] = color
+    now_color = graph[x][y]
+    graph_group[x][y] = group_num
+
     while q:
-        a,b = q.popleft()
+        a,b= q.popleft()
         for d in range(4):
             nx = a + dx[d]
             ny = b + dy[d]
             if 0<=nx<n and 0<=ny<n:
-                if visited[nx][ny] == -1:
-                    if graph_color[nx][ny] == color:
+                if graph_group[nx][ny] == -1:
+                    if graph[nx][ny]== now_color:
                         q.append([nx,ny])
-                        visited[nx][ny] = 1
-                        graph_group[nx][ny] = num
-                        dict_group_count[num] += 1
+                        graph_group[nx][ny] = group_num
 
-def find_near_group_bfs(x,y,now_group):
+def make_group():
+    group_num = -1
+    for i in range(n):
+        for j in range(n):
+            if graph_group[i][j] == -1:
+                group_num += 1
+                bfs(i,j, group_num)
+    return group_num+1
+
+def bfs_art(x,y,count_dict,near_count_dict,visited,num_dict):
+    global graph_group
     q = deque()
     q.append([x,y])
+    now_group = graph_group[x][y]
+    num_dict[now_group] = graph[x][y]
     visited[x][y] = 1
-
+    count_dict[now_group] += 1
     while q:
-        a,b = q.popleft()
+        a,b= q.popleft()
         for d in range(4):
             nx = a + dx[d]
             ny = b + dy[d]
             if 0<=nx<n and 0<=ny<n:
                 if visited[nx][ny] == -1:
+                    # 같은 그룹 내
                     if graph_group[nx][ny] == now_group:
                         q.append([nx,ny])
                         visited[nx][ny] = 1
-                    # 다른 색이 등장하는 경우
+                        count_dict[now_group] += 1
+                    # 다른 그룹인 경우
                     else:
                         other_group = graph_group[nx][ny]
-                        dict_near_count[now_group][other_group] += 1
+                        near_count_dict[now_group][other_group] += 1
+    return count_dict,near_count_dict,visited,num_dict
 
-def rotation_left_cross(i,j,new_graph_color):
-    new_graph_color[n-1-j][i] = graph_color[i][j]
+def cal_art(num_group):
+    global total_score
+    count_dict = {}
+    near_count_dict = {}
+    num_dict = {}
+    for num in range(num_group):
+        count_dict[num] = 0
+        near_count_dict[num] = [0 for _ in range(num_group)]
 
-def rotation_right(x,y,block_size,new_graph_color):
+    visited = [[-1 for _ in range(n)] for _ in range(n)]
+    for i in range(n):
+        for j in range(n):
+            if visited[i][j] == -1:
+                count_dict,near_count_dict,visited,num_dict = bfs_art(i,j,count_dict,near_count_dict,visited,num_dict)
+
+    for now_g in range(num_group):
+        for other_g in range(num_group):
+            if now_g != other_g:
+                a_count = count_dict[now_g]
+                b_count = count_dict[other_g]
+                a_num = num_dict[now_g]
+                b_num = num_dict[other_g]
+                near_count = near_count_dict[now_g][other_g]
+                total_score += ((a_count+b_count)*a_num*b_num*near_count)
+
+def rotate_left_cross():
+    global graph
+    new_graph = copy.deepcopy(graph)
+    for i in range(n):
+        for j in range(n):
+            if i == n//2 or j == n//2:
+                new_graph[n-1-j][i] = graph[i][j]
+    graph = new_graph
+
+def rotate_right(x,y,block_size):
+    global graph
+    new_graph = copy.deepcopy(graph)
     for i in range(block_size):
         for j in range(block_size):
-            new_graph_color[x+j][y+block_size-1-i] = graph_color[x+i][y+j]
-
+            new_graph[x+j][y+block_size-1-i] = graph[x+i][y+j]
+    graph = new_graph
 
 n = int(sys.stdin.readline().rstrip())
-graph_color = [list(map(int,sys.stdin.readline().rstrip().split())) for _ in range(n)]
-dx = [0,0,1,-1]
-dy = [1,-1,0,0]
+graph = [list(map(int,sys.stdin.readline().rstrip().split())) for _ in range(n)]
 
-dict_group_count = {}
-dict_near_count = {}
-dict_group_color = {}
+dx = [-1,0,1,0]
+dy = [0,1,0,-1]
 
 total_score = 0
-for turn in range(4):
-    graph_group = [[0 for _ in range(n)] for _ in range(n)]
-    visited = [[-1 for _ in range(n)] for _ in range(n)]
-    # 그룹 지정 해주기
-    group_num = 1
-    for i in range(n):
-        for j in range(n):
-            if visited[i][j] == -1:
-                find_group_bfs(i,j,group_num)
-                group_num += 1
 
-    # 총 그룹 개수 만큼 / dict_near_count 묶음 만들어 주기
-    for g_num in range(1, group_num):
-        dict_near_count[g_num] = {}
-        for near_g_num in range(1, group_num):
-            if g_num != near_g_num:
-                dict_near_count[g_num][near_g_num] = 0
-
-    # 각 그룹 별로 bfs 진행 하면서 / near에 있는 개수 측정
-    visited = [[-1 for _ in range(n)] for _ in range(n)]
-    group_num = 1
-    for i in range(n):
-        for j in range(n):
-            if visited[i][j] == -1:
-                find_near_group_bfs(i,j,group_num)
-                group_num += 1
-    # near 개수 기반 점수 측정
-    score = 0
-    for now_g in range(1, group_num):
-        for other_g in range(1, group_num):
-            if now_g != other_g:
-                now_g_count = dict_group_count[now_g]
-                other_g_count = dict_group_count[other_g]
-                color_now = dict_group_color[now_g]
-                color_other = dict_group_color[other_g]
-                line_count = dict_near_count[now_g][other_g]
-                score += ((now_g_count+other_g_count)*color_now*color_other*line_count)
-    total_score += score
-    if turn == 4:
+for round in range(0,4):
+    # 그룹 만들어 주기
+    graph_group = [[-1 for _ in range(n)] for _ in range(n)]
+    num_group = make_group()
+    # 예술성 계산
+    cal_art(num_group)
+    if round == 3:
         break
-
+    # 십자 모양 왼쪽
+    rotate_left_cross()
+    #블럭 모양 - 개별 오른
     block_size = n//2
-    new_graph_color = [[0 for _ in range(n)] for _ in range(n)]
-    # 십자는 왼쪽 90
-    for i in range(n):
-        for j in range(n):
-            if i == block_size or j == block_size:
-                rotation_left_cross(i,j,new_graph_color)
-
-    # 나머지 블럭은 오른 쪽으로 회전
     for i in [0,block_size+1]:
-        for j in [0,block_size+1]:
-            rotation_right(i,j,block_size,new_graph_color)
-    graph_color = new_graph_color
-
+        for j in [0, block_size + 1]:
+            rotate_right(i,j,block_size)
 print(total_score)
